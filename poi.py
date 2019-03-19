@@ -6,8 +6,12 @@ def loadJson():
     with open('data/poi.json') as f:
         return json.load(f)
 
+'''
+Dado um ponto, pesquisar na base de pontos de interesse, os que estao ate determinada distancia
+'''
 def poisInDistance(startPoint,pois,distance):
     r =  [p for p in pois if distanceBetween(startPoint,(p['latitude'],p['longitude'])) <= distance ]
+
     return r
 
 

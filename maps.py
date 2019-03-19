@@ -2,6 +2,7 @@ import googlemaps
 import polyline
 import poi
 from datetime import datetime
+from model.route import Route
 
 
 
@@ -15,21 +16,32 @@ gmaps = googlemaps.Client(key='AIzaSyAXP_Xrmn7tQxnJX1PRij18yuW8uaoe1Fc')
 
 # Request directions via public transit
 
-def getDirections(startPlace,endPlace):
-    return gmaps.directions(startPlace,endPlace,alternatives=True)
+def get_directions(startPlace,endPlace,waypoints = None):
+    return gmaps.directions(startPlace,endPlace,alternatives=True,waypoints=waypoints)
 
+
+def poisPorRota(rota,pois,distance):
+    pontos_de_rota = polyline.decode(rota['overview_polyline']['points'])
+
+    pois_retorno = []
+    for p in pontos_de_rota:
+        pois_add = poi.poisInDistance(p,pois,distance)
+        for poi_to_add in pois_add:
+            if poi_to_add not in pois_retorno:
+                pois_retorno.append(poi_to_add)
+    return Route(rota,pois_retorno)
 
 #['overview_polyline']['points']
 if __name__ == '__main__':
-    routes = getDirections('Aeroporto de Salvador','Farol da Barra')
+    start_location = 'Aeroporto de Salvador'
+    end_location = 'Farol da Barra'
+    routes = get_directions(start_location,end_location)
     route = routes[0]
-    points = polyline.decode(route['overview_polyline']['points'])
+    
     pois = poi.loadJson()
 
-    pois_retorno = []
-    for p in points:
-        pois_add = poi.poisInDistance(p,pois,1000)
-        for poi_to_add in pois_add:
-            if poi_to_add not in pois_retorno:
-                pois_retorno.extend(pois_add)
+    pois_route = poisPorRota(route,pois,1000)
+
+    final_route = get_directions(start_location,end_location,waypoints=pois_route.get_pois_coordinates())
+    
     print(pois_retorno)
