@@ -43,5 +43,5 @@ if __name__ == '__main__':
     pois_route = poisPorRota(route,pois,1000)
 
     final_route = get_directions(start_location,end_location,waypoints=pois_route.get_pois_coordinates())
-    
-    print(pois_retorno)
+    print("FIM")
+    #print(pois_retorno)
