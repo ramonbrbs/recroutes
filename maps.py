@@ -1,8 +1,12 @@
+# coding=utf-8
+
 import googlemaps
 import polyline
 import poi
 from datetime import datetime
 from model.route import Route
+from recommender import *
+import pandas as pd
 
 
 
@@ -31,17 +35,36 @@ def poisPorRota(rota,pois,distance):
                 pois_retorno.append(poi_to_add)
     return Route(rota,pois_retorno)
 
+pois = poi.loadJson()
+
+
+start_location = 'Basílica do Senhor do Bonfim'
+end_location = 'Aeroporto Internacional de Salvador - Dep. Luís Eduardo Magalhães'
+
+def score_by_route(route):
+    pois_route = poisPorRota(route,pois,300)
+    pois_route.final_google_route = get_directions(start_location, end_location,waypoints=pois_route.get_pois_coordinates())[0]
+    pois_route_df = pd.DataFrame(pois_route.pois)
+    pois_user_df = pd.read_json('data/poi2.json')
+    pois_route.scores = recommend(pois_route_df, pois_user_df)
+    pois_route.get_final_score()
+    return pois_route
+
 #['overview_polyline']['points']
 if __name__ == '__main__':
-    start_location = 'Aeroporto de Salvador'
-    end_location = 'Farol da Barra'
     routes = get_directions(start_location,end_location)
-    route = routes[0]
-    
-    pois = poi.loadJson()
 
-    pois_route = poisPorRota(route,pois,1000)
+    pois_routes = []
+    for route in routes:
+        pois_routes.append(score_by_route(route))
 
-    final_route = get_directions(start_location,end_location,waypoints=pois_route.get_pois_coordinates())
+    pois_routes.sort(key=lambda x: x.final_score, reverse=True)
+
+    for p in pois_routes:
+        print('-----------')
+        p.print_final_info()
+        print('-----------')
+
+    #final_route = get_directions(start_location,end_location,waypoints=pois_route.get_pois_coordinates())
     print("FIM")
     #print(pois_retorno)
