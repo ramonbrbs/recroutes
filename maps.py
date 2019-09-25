@@ -38,8 +38,8 @@ def poisPorRota(rota,pois,distance):
 pois = poi.loadJson()
 
 
-start_location = 'Basílica do Senhor do Bonfim'
-end_location = 'Aeroporto Internacional de Salvador - Dep. Luís Eduardo Magalhães'
+start_location = 'Aeroporto de Salvador'
+end_location = 'Shopping Barra'
 
 def score_by_route(route):
     pois_route = poisPorRota(route,pois,300)

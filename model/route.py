@@ -24,10 +24,13 @@ class Route:
         sum_score = sum([x[1] for x in self.scores])
         self.final_score = ((len_pois * sum_score)* 1000) / self.final_distance
 
-    def print_final_info(self, legs = True):
+    def print_final_info(self, legs = False):
         print("Rota por " + self.final_google_route['summary'])
         print("Distancia (metros): " + str(self.final_distance))
         print("Score final : " + str(self.final_score))
+        print("POIs:")
+        for p in self.pois:
+            print(p['name'])
         if(legs):
             for l in self.final_google_route[u'legs']:
                 for s in l[u'steps']:
